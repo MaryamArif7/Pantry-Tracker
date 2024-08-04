@@ -11,6 +11,7 @@ const SignIn = () => {
   const router = useRouter();
 
   const handleSignIn = async () => {
+    if (typeof window !== 'undefined') {
     try {
       const res = await signInWithEmailAndPassword(email, password);
       console.log({ res });
@@ -22,6 +23,7 @@ const SignIn = () => {
       console.error(e);
     }
   };
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-onSign">

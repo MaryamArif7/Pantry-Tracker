@@ -9,7 +9,7 @@ import {
   setDoc,
   doc,
 } from "firebase/firestore";
-import { firestore } from "../firebase"; // Ensure this path is correct
+import { firestore } from "../firebase"; 
 import {
   Modal,
   Box,
