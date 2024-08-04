@@ -1,7 +1,33 @@
 import "./globals.css";
+("use client");
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "../firebase"; // Adjust the path as necessary
+import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 
 export default function Home() {
+  const router = useRouter();
+  let isUserLoggedIn = false;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        isUserLoggedIn = true;
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleGetStarted = () => {
+    if (isUserLoggedIn) {
+      router.push("/dash");
+    } else {
+      router.push("/signup");
+    }
+  };
+
   return (
     <>
       <div className="flex items-center ">
@@ -14,11 +40,14 @@ export default function Home() {
           <h1 className="text-4xl">
             Smart Inventory Management system at <br /> your fingertips
           </h1>
-         <div className="mt-10 ">
-         <Link href="/signup" className=" bg-purple-500 text-white py-3 px-6 rounded-lg hover:bg-purple-900">
-            Get Started
-          </Link>
-         </div>
+          <div className="mt-10 ">
+            <button
+              onClick={handleGetStarted}
+              className="bg-purple-500 text-white py-3 px-6 rounded-lg hover:bg-purple-600 transition duration-200"
+            >
+              Get Started
+            </button>
+          </div>
         </div>
       </div>
       <div className="flex gap-3 mt-10">
