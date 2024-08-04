@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState, useEffect } from "react";
 import {
   collection,
@@ -25,7 +25,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { grey, blue, red ,purple} from '@mui/material/colors';
 
-
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -33,7 +32,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const Dashboard = () => {
   const [inventory, setInventory] = useState([]);
   const [itemName, setItemName] = useState("");
-  const [count,setCount]=useState("");
+  const [count, setCount] = useState("");
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -45,6 +44,7 @@ const Dashboard = () => {
     setEditingQuantity(count);
     handleOpen();
   };
+
   const updateInventory = async () => {
     try {
       const snapshot = query(collection(firestore, "inventory"));
@@ -70,7 +70,7 @@ const Dashboard = () => {
         await deleteDoc(docRef);
         setSnackbarMessage(`${item} removed from inventory.`);
       } else {
-        await setDoc(docRef, { count: 1 });
+        await setDoc(docRef, { count: parseInt(count) });
         setSnackbarMessage(`${item} added to inventory.`);
       }
       await updateInventory();
@@ -80,26 +80,17 @@ const Dashboard = () => {
     }
   };
 
-  const removeItem = async (item) => {
+  const updateItem = async (item) => {
     try {
       const docRef = doc(firestore, "inventory", item);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        await deleteDoc(docRef);
-     //   const { count } = docSnap.data();
-       // await setDoc(docRef, { count: count > 1 ? count - 1 : 0 });
-        setSnackbarMessage(`Removed 1 ${item} from inventory.`);
-        await updateInventory();
-        setSnackbarOpen(true);
-      }
+      await setDoc(docRef, { count: parseInt(editingQuantity) });
+      setSnackbarMessage(`${item} updated in inventory.`);
+      await updateInventory();
+      setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error removing item:", error);
+      console.error("Error updating item:", error);
     }
   };
-
- /// const editItem = async (item) => {
-   
-//  };
 
   useEffect(() => {
     updateInventory();
@@ -128,16 +119,9 @@ const Dashboard = () => {
       borderRadius={2}
       boxShadow={3}
     >
-        
-      
-        <Typography variant="h3" style={{ color: '#fff', fontWeight: 'bold' }}>
-          Pantry Stock
-        </Typography>
-      
-   
-      {/*<Typography className="mt-5" variant="h3"  style={{ color: grey[900] }}>
-        Inventory Items
-      </Typography> */}
+      <Typography variant="h3" style={{ color: '#fff', fontWeight: 'bold' }}>
+        Pantry Stock
+      </Typography>
       <Modal open={open} onClose={handleClose}>
         <Box
           position="absolute"
@@ -155,35 +139,35 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <Typography variant="h6" align="center">
-            Add Item
+            {editingItem ? "Edit Item" : "Add Item"}
           </Typography>
-     
           <Stack width="100%" direction="row" spacing={2}>
             <TextField
               variant="outlined"
               fullWidth
               label="Item Name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
+              value={editingItem ? editingItem : itemName}
+              onChange={(e) => editingItem ? setEditingItem(e.target.value) : setItemName(e.target.value)}
             />
-               <TextField
-                label="Quantity"
-                name="quantity"
-                type="number"
-               value={count}
-               onChange={(e)=>setCount(e.target.value)}
-                required
+            <TextField
+              label="Quantity"
+              name="quantity"
+              type="number"
+              value={editingItem ? editingQuantity : count}
+              onChange={(e) => editingItem ? setEditingQuantity(e.target.value) : setCount(e.target.value)}
+              required
             />
             <Button
               variant="contained"
               color="secondary"
               onClick={() => {
-                addItem(itemName);
+                editingItem ? updateItem(editingItem) : addItem(itemName);
                 setItemName("");
+                setEditingItem(null);
                 handleClose();
               }}
             >
-              Add
+              {editingItem ? "Update" : "Add"}
             </Button>
           </Stack>
         </Box>
@@ -228,7 +212,7 @@ const Dashboard = () => {
               <IconButton
                 aria-label="edit"
                 color="primary"
-                onClick={() => editItem(name,count)}
+                onClick={() => editItem(name, count)}
               >
                 <EditIcon />
               </IconButton>
