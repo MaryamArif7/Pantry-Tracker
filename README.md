@@ -35,3 +35,13 @@ The Pantry Tracker Application is a web app designed to help users manage their 
    ```bash
    git clone https://github.com/MaryamArif7/Pantry-Tracker/
    cd Pantry-Tracker
+2.Install dependencies:
+npm install
+
+3.Setting up Firebase
+i.Create a Firebase project in the Firebase Console.
+ii.Add your app to the project and obtain the configuration details.
+iii.Update your Firebase configuration in the application.
+4.Run the application:
+npm run dev
+5.Open your browser and navigate to http://localhost:3000 to view the
