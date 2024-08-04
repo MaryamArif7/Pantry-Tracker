@@ -37,7 +37,14 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [editingQuantity, setEditingQuantity] = useState("");
 
+  const editItem = (name, count) => {
+    setEditingItem(name);
+    setEditingQuantity(count);
+    handleOpen();
+  };
   const updateInventory = async () => {
     try {
       const snapshot = query(collection(firestore, "inventory"));
@@ -90,9 +97,9 @@ const Dashboard = () => {
     }
   };
 
-  const editItem = async (item) => {
+ /// const editItem = async (item) => {
    
-  };
+//  };
 
   useEffect(() => {
     updateInventory();
@@ -124,7 +131,7 @@ const Dashboard = () => {
         
       
         <Typography variant="h3" style={{ color: '#fff', fontWeight: 'bold' }}>
-          Inventory Items
+          Pantry Stock
         </Typography>
       
    
@@ -221,7 +228,7 @@ const Dashboard = () => {
               <IconButton
                 aria-label="edit"
                 color="primary"
-                onClick={() => editItem(name)}
+                onClick={() => editItem(name,count)}
               >
                 <EditIcon />
               </IconButton>
