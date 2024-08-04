@@ -13,6 +13,7 @@ module.exports = {
   colors:{
     customPurple:'#342a45',
     'onHover':     '#6c35de',
+    'onSign':     '#4d425f',
   },
 
 
