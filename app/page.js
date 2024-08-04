@@ -1,20 +1,17 @@
+"use client";
 import "./globals.css";
-("use client");
-import { useEffect } from "react";
+import { useEffect, useState } from "react"; 
 import { useRouter } from "next/navigation";
-import { auth } from "../firebase"; // Adjust the path as necessary
+import { auth } from "./firebase"; // 
 import { onAuthStateChanged } from "firebase/auth";
-import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
-  let isUserLoggedIn = false;
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false); // Use useState
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        isUserLoggedIn = true;
-      }
+      setIsUserLoggedIn(!!user); // Update state based on user
     });
 
     return () => unsubscribe();
@@ -22,9 +19,9 @@ export default function Home() {
 
   const handleGetStarted = () => {
     if (isUserLoggedIn) {
-      router.push("/dash");
+      router.push("/pantry"); 
     } else {
-      router.push("/signup");
+      router.push("/signup"); 
     }
   };
 
