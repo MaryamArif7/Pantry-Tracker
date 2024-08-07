@@ -1,18 +1,4 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-
-
-body {
-  background-color: #4d425f;
-
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-blend-mode: darken;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 8px;
-  margin: 20px;
   
- }

@@ -26,7 +26,7 @@ const SignIn = () => {
 }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-onSign">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-t from-violet-600 to-white">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96 transition-transform transform hover:scale-105">
         <h1 className="text-white text-2xl mb-5 text-center">Sign In</h1>
         <input 
