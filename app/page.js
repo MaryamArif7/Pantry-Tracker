@@ -27,11 +27,11 @@ export default function Home() {
 
   return (
     <>
-    <div className="  bg-purple-300  w-full min-h-screen">
-      <div className="ml-20  mr-28">
-      <nav className="bg-purple-900 bg-opacity-35  p-4 shadow-lg rounded-3xl  mx-4">
+    <div className="  bg-black  w-full min-h-screen">
+      <div className="ml-20  mr-24">
+      <nav className="bg-black bg-opacity-50 p-4 shadow-lg rounded-3xl mx-4">
         <div className=" container mx-auto flex justify-between items-center">
-          <div className="text-black text-2xl font-bold">Stock Check</div>
+          <div className="text-white text-2xl font-bold">Stock Check</div>
           <ul className="flex space-x-6">
             <li>
               <a
@@ -60,13 +60,13 @@ export default function Home() {
           </ul>
         </div>
       </nav>
-      <div className="flex justify-between items-center mt-10">
+      <div className="flex justify-between items-center mt-10 ml-5">
           <div className="gap-3">
-            <h1 className="text-4xl font-extrabold mb-3">Your pantry, perfectly organized.</h1>
-            <h1 className="text-4xl font-extrabold mb-3">
+            <h1 className="text-4xl text-white font-extrabold mb-3">Your pantry, perfectly organized.</h1>
+            <h1 className="text-4xl  text-white font-extrabold mb-3">
               Never miss an item again <span className="text-purple-700"><br /> With Stock Check</span>
             </h1>
-            <p className="font-bold mb-3">
+            <p className="font-bold mb-3 text-white ">
               You'll never lose track of what's in your pantry. Avoid buying duplicates <br /> 
               and make the most of your groceries by always knowing what you have on hand.
             </p>
@@ -80,7 +80,7 @@ export default function Home() {
             </div>
           </div>
           <div>
-            <img src="./assets/6.png" alt="App usage demonstration" className="w-96 h-auto rounded-lg shadow-lg" />
+            <img src="./assets/8.png" alt="App usage demonstration" className="w-96 h-auto rounded-lg shadow-lg" />
           </div>
         </div>
 
