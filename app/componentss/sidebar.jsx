@@ -48,10 +48,7 @@ const Sidebar = () => {
     <SidebarLink href="#" icon={LogOut} label="Logout" onClick={() => signOut()} />
   
   </div>
-  <div>
-  <Link href='/createnew' className="pt-20 pl-10 mt-28">
-  Create New Item </Link>
-  </div>
+
 
  
 </div>

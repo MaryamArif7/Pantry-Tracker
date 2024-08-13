@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import {
   collection,
@@ -28,8 +29,6 @@ import {
 } from "@/components/ui/table";
 import {
   Pagination,
-  PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -54,6 +53,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import * as XLSX from 'xlsx';
+
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -64,14 +65,38 @@ const Page = () => {
   const [count, setCount] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [currentPage, setCurrentPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
   const [editingItem, setEditingItem] = useState(null);
   const [editingQuantity, setEditingQuantity] = useState("");
   const [open, setOpen] = useState(false);
+  const exportData = () => {
+    console.log("Inventory Data:", inventory);
+    if (!inventory || inventory.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+  
+    // Map inventory data to the desired format
+    const dataToExport = inventory.map((item) => ({
+      Item: item.name,
+      Quantity: item.count,
+    }));
+    console.log("Data to Export:", dataToExport);
+    // Create a worksheet from the JSON data
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  
+    // Create a new workbook and append the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Your List");
+  
+    // Write the workbook to a file
+    XLSX.writeFile(workbook, "pantry_data.xlsx");
+  };
   const editItem = (name, count) => {
     setEditingItem(name);
     setEditingQuantity(count);
   };
+
   const updateItem = async () => {
     if (!editingItem || !editingQuantity) {
       setSnackbarMessage("Item name and quantity are required.");
@@ -79,8 +104,8 @@ const Page = () => {
       return;
     }
     try {
-      const docRef = doc(firestore, "inventory", editingItem); 
-      await setDoc(docRef, { count: parseInt(editingQuantity) }); 
+      const docRef = doc(firestore, "inventory", editingItem);
+      await setDoc(docRef, { count: parseInt(editingQuantity) });
       setSnackbarMessage(`${editingItem} updated in inventory.`);
       await updateInventory();
       setSnackbarOpen(true);
@@ -89,12 +114,15 @@ const Page = () => {
       console.error("Error updating item:", error);
     }
   };
+
   const itemsPerPage = 3;
-  const totalItems = 15;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.ceil(inventory.length / itemsPerPage);
+
   const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = inventory.slice(startIndex, startIndex + itemsPerPage);
 
@@ -152,19 +180,18 @@ const Page = () => {
       await updateInventory();
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error adding item:", error);
+      console.error("Error removing item:", error);
     }
   };
 
   useEffect(() => {
     updateInventory();
   }, []);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
   return (
     <>
       <div>
@@ -229,7 +256,10 @@ const Page = () => {
             </button>
           </div>
           <div className="bg-neutral-100 w-80 h-20 mt-6 px-4 py-3 flex items-center justify-center">
-            <button className="bg-purple-500 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-purple-700">
+            <button
+              className="bg-purple-500 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-purple-700"
+              onClick={exportData}
+            >
               <ArrowDownIcon className="w-5 h-5" />
               <span>Export Items List</span>
             </button>
@@ -237,126 +267,113 @@ const Page = () => {
         </div>
 
         <div className="mt-20 p-4 w-2/3">
-          <Table className="w-full bg-white shadow-md rounded-lg">
+          <Table className="w-full bg-white shadow-md rounded-lg border-violet-900">
             <TableCaption className="text-lg font-semibold mb-4 text-center">
               List of Items
             </TableCaption>
-            <TableHeader>
-              <TableRow className="bg-gray-300 text-gray-600">
-                <TableHead className="p-3 text-left">Item</TableHead>
-                <TableHead className="p-3 text-left">Quantity</TableHead>
-                <TableHead className="p-3 text-left">Action</TableHead>
+            <TableHeader className="bg-neutral-200 text-gray-900">
+              <TableRow>
+                <TableHead className="py-4 text-center">Item</TableHead>
+                <TableHead className="py-4 text-center">Quantity</TableHead>
+                <TableHead className="py-4 text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {inventory.map(({ name, count }) => (
-                <TableRow key={name} className="border-t hover:bg-gray-100">
-                  <TableCell className="p-3">{name}</TableCell>
-                  <TableCell className="p-3">{count}</TableCell>
-                  <TableCell className="p-3">
-                    <div className="flex gap-3">
-                      <Sheet>
-                        <SheetTrigger asChild>
-                          <Button className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-700">
-                            Edit
-                          </Button>
-                        </SheetTrigger>
-                        <SheetContent>
-                          <SheetHeader>
-                            <SheetTitle>Edit Item </SheetTitle>
-                            <SheetDescription>
-                              Make changes to your item info. Click save when
-                              you're done.
-                            </SheetDescription>
-                          </SheetHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="name" className="text-right">
-                                Item
-                              </Label>
-                              <Input
-                                id="name"
-                                value={editingItem}
-                                onChange={(e) => setEditingItem(e.target.value)}
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="username" className="text-right">
-                                Quantity
-                              </Label>
-                              <Input
-                                id="username"
-                                value={editingQuantity}
-                                onChange={(e) =>
-                                  setEditingQuantity(e.target.value)
-                                }
-                                className="col-span-3"
-                              />
-                            </div>
+              {inventory.map((item) => (
+                <TableRow key={item.name}>
+                  <TableCell className="py-3 text-center">
+                    {item.name}
+                  </TableCell>
+                  <TableCell className="py-3 text-center">
+                    {item.count}
+                  </TableCell>
+                  <TableCell className="py-3 text-center">
+                    <Button
+                      onClick={() => removeItem(item.name)}
+                      className="bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded mr-2"
+                    >
+                      Remove
+                    </Button>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          onClick={() => editItem(item.name, item.count)}
+                          className="bg-purple-500 hover:bg-purple-700 text-white px-2 py-1 rounded"
+                        >
+                          Edit
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent>
+                        <SheetHeader>
+                          <SheetTitle>Edit Item</SheetTitle>
+                          <SheetDescription>
+                            Update the item's quantity.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="itemName">Item</Label>
+                            <Input
+                              id="itemName"
+                              value={editingItem || ""}
+                              onChange={(e) => setEditingItem(e.target.value)}
+                              className="col-span-3"
+                              disabled
+                            />
                           </div>
-                          <SheetFooter>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="count">Quantity</Label>
+                            <Input
+                              id="count"
+                              type="number"
+                              value={editingQuantity || ""}
+                              onChange={(e) =>
+                                setEditingQuantity(e.target.value)
+                              }
+                              className="col-span-3"
+                            />
+                          </div>
+                        </div>
+                        <SheetFooter>
+                          <SheetClose asChild>
                             <Button
-                              onClick={() => {
-                                updateItem(); 
-                              }}
-                              className="bg-purple-600"
-                              type="button"
+                              onClick={updateItem}
+                              className="bg-purple-500 hover:bg-purple-700"
                             >
                               Save changes
                             </Button>
-                            <SheetClose asChild>
-                              <Button className="bg-gray-400" type="button">
-                                Cancel
-                              </Button>
-                            </SheetClose>
-                          </SheetFooter>
-                        </SheetContent>
-                      </Sheet>
-
-                      <button
-                        onClick={() => removeItem(name)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                          </SheetClose>
+                        </SheetFooter>
+                      </SheetContent>
+                    </Sheet>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-
-          <Pagination className="mt-6 flex justify-center">
+          <Pagination>
             <PaginationPrevious
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-            >
-              Previous
-            </PaginationPrevious>
-            <PaginationContent>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index}>
-                  <PaginationLink
-                    active={index + 1 === currentPage}
-                    onClick={() => handlePageChange(index + 1)}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-            </PaginationContent>
+            />
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem
+                key={i + 1}
+                isActive={i + 1 === currentPage}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                <PaginationLink>{i + 1}</PaginationLink>
+              </PaginationItem>
+            ))}
             <PaginationNext
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-            >
-              Next
-            </PaginationNext>
+            />
           </Pagination>
         </div>
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={handleSnackbarClose}
         >
           <Alert onClose={handleSnackbarClose} severity="success">
